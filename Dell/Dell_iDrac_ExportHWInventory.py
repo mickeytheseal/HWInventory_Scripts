@@ -17,9 +17,6 @@ from pprint import pprint
 
 
 def start():
-    idrac_ip = "172.24.1.191"
-    login = "root"
-    pw = "calvin"
 
     my_path = pathlib.Path(__file__).parent.resolve()
     rep_folder = os.path.join(my_path, "data_dell")

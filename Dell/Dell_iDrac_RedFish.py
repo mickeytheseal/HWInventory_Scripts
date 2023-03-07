@@ -5,7 +5,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Set creds for  connection
-server_ip = "172.24.1.228"
+server_ip = "172.24.1.191"
 server_user = "root"
 server_pass = "calvin"
 
