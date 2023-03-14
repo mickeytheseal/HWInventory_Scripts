@@ -130,4 +130,3 @@ dmypy.json
 
 # Custom dirs
 Scanner_launcher/logs/
-Scanner_launcher/inputfile.csv
