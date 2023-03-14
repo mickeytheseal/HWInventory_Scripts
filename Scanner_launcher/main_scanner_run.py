@@ -27,12 +27,10 @@ def get_data_from_ip(ip, username, password):
             if content.get("Product", False) == 'Integrated Dell Remote Access Controller':
                 logger.debug(f'get_data_from_ip for ip {ip}: It is iDRAC calling DELL HW collector')
                 # TODO Add hw collector for DELL RedFish v1
-                print(f'Dell {ip}')
                 return
             elif content.get('Vendor') == 'Lenovo':
                 logger.debug(f'get_data_from_ip for ip {ip}: It is XCC calling LENOVO HW collector')
                 # TODO Add Lenovo collector for Redfish v1
-                print(f'Lenovo {ip}')
                 return
     except Exception as ex:
         logger.debug(f'get_data_from_ip for ip {ip}: Error, exception: {ex}, not DELL continue checking')
