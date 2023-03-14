@@ -41,16 +41,16 @@ def get_data_from_ip(ip, username, password):
         if version == 'iLO4':
             logger.debug(f'get_data_from_ip for ip {ip}: We are having the iLO 4, calling the script')
             # TODO Add HPE iLO4 script here
-        elif version== 'iLO3':
+        elif version == 'iLO3':
             logger.debug(f'get_data_from_ip for ip {ip}: We are having the iLO 3, calling the script')
             # TODO Add HPE iLO3 script here
-        elif version== 'iLO2':
+        elif version == 'iLO2':
             logger.debug(f'get_data_from_ip for ip {ip}: We are having the iLO 2, calling the script')
             # TODO Add HPE iLO2 script here
-        elif version== 'iLO1':
+        elif version == 'iLO1':
             logger.debug(f'get_data_from_ip for ip {ip}: We are having the iLO 1, calling the script')
             # TODO Add HPE iLO1 script here
-        elif version== 'iLO5':
+        elif version == 'iLO5':
             logger.debug(f'get_data_from_ip for ip {ip}: We are having the iLO 5, calling the script')
             # TODO Add HPE iLO5 script here
 
@@ -104,7 +104,6 @@ def get_data_from_file(file, username, password, procnum):
     pool.close()
 
     return
-
 
 
 def main():
@@ -171,7 +170,6 @@ def main():
 
     print('Wrong arguments')
     parser.print_help()
-
 
 
 if __name__ == '__main__':
