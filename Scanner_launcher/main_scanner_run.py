@@ -4,6 +4,7 @@ import logging
 import multiprocessing
 import os.path
 import re
+import ssl
 import sys
 import requests
 import hpilo
@@ -36,8 +37,9 @@ def get_data_from_ip(ip, username, password):
         logger.debug(f'get_data_from_ip for ip {ip}: Error, exception: {ex}, not DELL continue checking')
 
     try:
-        ilo = hpilo.Ilo(ip, username, password)
+        ilo = hpilo.Ilo(ip, username, password, protocol=ssl.PROTOCOL_TLSv1)
         version = ilo.get_fw_version().get('management_processor')
+        logger.debug('Debug mark I')
         if version == 'iLO4':
             logger.debug(f'get_data_from_ip for ip {ip}: We are having the iLO 4, calling the script')
             # TODO Add HPE iLO4 script here
