@@ -3,9 +3,11 @@ import csv
 import json
 import requests
 from requests.auth import HTTPBasicAuth
+from requests.adapters import HTTPAdapter
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 class HWData:
 	def __init__(self,vendor,sn):
@@ -37,7 +39,7 @@ def collectData(server_ip, server_user, server_pass):
 	servicetag_info_response = session.get(servicetag_info_url)
 	servicetag_info_json = servicetag_info_response.json()
 	servicetag = servicetag_info_json["Oem"]["Dell"]["ServiceTag"]
-	print(servicetag)
+	print(f"\nCollecting data from {server_ip}. ServiceTag: {servicetag}")
 
 	srv = HWData("DELL",servicetag)
 
@@ -45,27 +47,25 @@ def collectData(server_ip, server_user, server_pass):
 	processors_info_url = base_url + f"/redfish/v1/Systems/System.Embedded.1/Processors"
 	processors_info_response = session.get(processors_info_url)
 	processors_info_json = processors_info_response.json()
-	print("\nCPU:")
 	for proc_socket in processors_info_json["Members"]:
 		url_part = proc_socket["@odata.id"]
 		processor_info_url = base_url + url_part
 		processor_info_response = session.get(processor_info_url)
 		processor_info_json = processor_info_response.json()
 		srv.processors.append(processor_info_json["Model"])
-		print(processor_info_json["Model"])
+	print("Collected CPU info")
 
 	# Get memory info
 	memory_info_url = base_url + f"/redfish/v1/Systems/System.Embedded.1/Memory"
 	memory_info_response = session.get(memory_info_url)
 	memory_info_json = memory_info_response.json()
-	print("\nRAM:")
 	for mem_socket in memory_info_json["Members"]:
 		url_part = mem_socket["@odata.id"]
 		memory_info_url = base_url + url_part
 		memory_info_response = session.get(memory_info_url)
 		memory_info_json = memory_info_response.json()
 		srv.memory.append(memory_info_json["PartNumber"])
-		print(memory_info_json["PartNumber"])
+	print("Collected Memory info")
 
 	# Get storage info
 	storage_info_url = base_url + f"/redfish/v1/Systems/System.Embedded.1/Storage"
@@ -75,46 +75,40 @@ def collectData(server_ip, server_user, server_pass):
 		ctrl_part = controller["@odata.id"]
 		ctrl_info_url = base_url + ctrl_part
 		ctrl_info_response = session.get(ctrl_info_url)
-		ctrl_info_json = ctrl_info_response.json()
-		print("\nRAID:")														
+		ctrl_info_json = ctrl_info_response.json()													
 		srv.controllers.append(ctrl_info_json["Name"])
-		print(ctrl_info_json["Name"])
 		for drive in ctrl_info_json["Drives"]:
 			url_part = drive["@odata.id"]
 			drive_info_url = base_url + url_part
 			drive_info_response = session.get(drive_info_url)
 			drive_info_json = drive_info_response.json()
 			srv.drives.append(drive_info_json["Model"])
-			print(drive_info_json["Model"])
+	print("Collected Storage info")
 
 	# Get PSU info
 	power_info_url = base_url + f"/redfish/v1/Chassis/System.Embedded.1/Power#"
 	power_info_response = session.get(power_info_url)
 	power_info_json = power_info_response.json()
-	print("\nPSU:")
 	for psu in power_info_json["PowerSupplies"]:
 		srv.psu.append(psu["PartNumber"])
-		print(psu["PartNumber"])
+	print("Collected PSU info")
 
 	# Get PCI info
 	chassis_info_url = base_url + f"/redfish/v1/Chassis/System.Embedded.1"
 	chassis_info_response = session.get(chassis_info_url)
 	chassis_info_json = chassis_info_response.json()
-	print("\nPCI:")
 	for device in chassis_info_json["Links"]["PCIeDevices"]:
 		url_part = device["@odata.id"]
 		device_info_url = base_url + url_part
 		device_info_response = session.get(device_info_url)
 		device_info_json = device_info_response.json()
-		srv.pci.append(str(device_info_json["Name"]) + "|" + str(device_info_json["PartNumber"]))
-		print(str(device_info_json["Name"]) + "|" + str(device_info_json["PartNumber"]))		#TODO: Отсеивание встроенных устройств
+		srv.pci.append(str(device_info_json["Name"]) + "|" + str(device_info_json["PartNumber"]))	#TODO: Filter integrated devices
+	print("Collected PCI info")
 
 	session.close()
-
 	srv_json = srv.toJSON()
-
 	return srv_json, servicetag
-
+  
 
 def saveToFile(data,outputPath,filename):
 	with open(f'{outputPath}\\{filename}.json', 'w') as f:
@@ -126,10 +120,8 @@ if __name__ == "__main__":
 	outputPath = sys.argv[2]
 	print(inputFile)
 	with open(inputFile, 'r') as csvfile:
-		datareader = csv.reader(csvfile,delimiter=';')
-		if len(next(datareader)[0]) == 1:
-			datareader = csv.reader(csvfile,delimiter=',')	#TODO: Проверить меняется ли разделитель
-			next(datareader)
+		datareader = csv.reader(csvfile,delimiter=';')	#Change delimeter if needed
+		next(datareader)
 		for row in datareader:
 			collectedData, filename = collectData(row[0],row[1],row[2])
 			saveToFile(collectedData,outputPath,filename)
