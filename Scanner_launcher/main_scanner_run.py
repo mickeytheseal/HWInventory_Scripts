@@ -33,13 +33,34 @@ def get_data_from_ip(ip, username, password):
                 logger.debug(f'get_data_from_ip for ip {ip}: It is XCC calling LENOVO HW collector')
                 # TODO Add Lenovo collector for Redfish v1
                 return
+            elif 'Hpe' in content.get('Oem'):
+                if content.Hpe.Manager.ManagerType == 'iLO 5':
+                    logger.debug(f'get_data_from_ip for ip {ip}: It is ILO 5 calling ilo5 HW collector')
+                    # TODO Add HPE iLO 5 collector for Redfish v1
+                    return
+                elif content.Hpe.Manager.ManagerType == 'iLO 6':
+                    logger.debug(f'get_data_from_ip for ip {ip}: It is ILO 6 calling ilo6 HW collector')
+                    # TODO Add HPE iLO 6 collector for Redfish v1
+                    return
+                else:
+                    logger.error(f'get_data_from_ip for ip {ip}: Unknown iLO type detected: '
+                                 f'{content.Hpe.Manager.ManagerType}')
+                    return
+            elif 'Hp' in content.get('Oem'):
+                logger.debug(f'get_data_from_ip for ip {ip}: It is ILO 4 calling ilo4 HW collector')
+                # TODO Add HPE iLO 4 collector for Redfish v1
+                return
+
     except Exception as ex:
         logger.debug(f'get_data_from_ip for ip {ip}: Error, exception: {ex}, not DELL continue checking')
 
     try:
-        ilo = hpilo.Ilo(ip, username, password, protocol=ssl.PROTOCOL_TLSv1)
-        version = ilo.get_fw_version().get('management_processor')
-        logger.debug('Debug mark I')
+        # ilo = hpilo.Ilo(ip, username, password, protocol=ssl.PROTOCOL_TLSv1)
+        # version = ilo.get_fw_version().get('management_processor')
+        url = f'https://{ip}'
+        response = requests.get(url, headers=headers, verify=False, auth=(username, password))
+
+        version = None
         if version == 'iLO4':
             logger.debug(f'get_data_from_ip for ip {ip}: We are having the iLO 4, calling the script')
             # TODO Add HPE iLO4 script here
