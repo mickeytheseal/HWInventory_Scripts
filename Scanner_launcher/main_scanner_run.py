@@ -4,7 +4,6 @@ import logging
 import multiprocessing
 import os.path
 import re
-import ssl
 import sys
 import requests
 
