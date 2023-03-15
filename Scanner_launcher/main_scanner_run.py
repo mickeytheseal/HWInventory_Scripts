@@ -7,7 +7,7 @@ import re
 import ssl
 import sys
 import requests
-import hpilo
+
 
 from functions import setup_logging
 
@@ -58,24 +58,28 @@ def get_data_from_ip(ip, username, password):
         # ilo = hpilo.Ilo(ip, username, password, protocol=ssl.PROTOCOL_TLSv1)
         # version = ilo.get_fw_version().get('management_processor')
         url = f'https://{ip}'
-        response = requests.get(url, headers=headers, verify=False, auth=(username, password))
 
+        # response = requests.get(url, headers=headers, verify=False, auth=(username, password))
+        result = os.popen(f'curl "{url}" -i -k').read()
+
+        tmp_re = re.search('<title>(.+)<', result)
         version = None
-        if version == 'iLO4':
-            logger.debug(f'get_data_from_ip for ip {ip}: We are having the iLO 4, calling the script')
-            # TODO Add HPE iLO4 script here
-        elif version == 'iLO3':
+        if tmp_re:
+            version = tmp_re.group(1)
+
+        if version == 'iLO 3':
             logger.debug(f'get_data_from_ip for ip {ip}: We are having the iLO 3, calling the script')
             # TODO Add HPE iLO3 script here
-        elif version == 'iLO2':
+            return
+        elif version == 'iLO 2':
             logger.debug(f'get_data_from_ip for ip {ip}: We are having the iLO 2, calling the script')
             # TODO Add HPE iLO2 script here
-        elif version == 'iLO1':
+            return
+        elif version == 'iLO 1':
             logger.debug(f'get_data_from_ip for ip {ip}: We are having the iLO 1, calling the script')
             # TODO Add HPE iLO1 script here
-        elif version == 'iLO5':
-            logger.debug(f'get_data_from_ip for ip {ip}: We are having the iLO 5, calling the script')
-            # TODO Add HPE iLO5 script here
+            return
+
 
 
     except Exception as ex:
